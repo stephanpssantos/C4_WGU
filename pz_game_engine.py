@@ -1,9 +1,11 @@
+import constants
 from game_engine import GameEngine
 
 class PZGameEngine(GameEngine):
     def __init__(self, env):
         super().__init__()
         self.env = env
+        self.post_game_done = False
 
     def start_game(self):
         for agent in self.env.agent_iter():
@@ -12,18 +14,21 @@ class PZGameEngine(GameEngine):
 
             if self.game_over():
                 action = None
+                self._post_game(player)
             else:
                 action = player.get_action(self.get_board(), self.get_moves())
 
             self.env.step(action)
-        pass
+        
+        return 0 # should be game outcome for tracking
 
     def reset(self):
-        self.env.reset()
+        self.next_player = 0
+        self.post_game_done = False
+        self.env.reset(constants.SEED)
 
     def get_moves(self):
-        columns = self.env.last()[0]["action_mask"]
-        return [i for i, v in enumerate(columns) if v == 1]
+        return self.env.last()[0]["action_mask"]
     
     def get_board(self):
         return self.env.last()[0]["observation"]
@@ -34,3 +39,19 @@ class PZGameEngine(GameEngine):
     
     def end_game(self):
         self.env.close()
+    
+    def _post_game(self, player):
+        if self.post_game_done: return
+        winner = self._check_winner()
+        print(winner)
+        player.end_game(self.get_board(), winner)
+        next_player = self.player1 if self.next_player else self.player0
+        next_player.end_game(self.get_board(), winner)
+        self.post_game_done = True
+        
+        return
+
+    def _check_winner(self):
+        winner = self.player1 if self.next_player else self.player0
+        reward = self.env.last()[1]
+        return "draw" if reward == 0 else winner.name
