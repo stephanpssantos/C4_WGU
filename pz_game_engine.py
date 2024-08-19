@@ -39,6 +39,10 @@ class PZGameEngine(GameEngine):
         termination, truncation = self.env.last()[2:4]
         return True if termination or truncation else False
     
+    def early_termination(self):
+        self.player0.early_termination()
+        self.player1.early_termination()
+    
     def end_game(self):
         self.env.close()
     
@@ -50,7 +54,6 @@ class PZGameEngine(GameEngine):
         next_player.end_game(self.get_board(), winner)
         self.post_game_done = True
         self.winner = winner
-        
         return
 
     def _check_winner(self):

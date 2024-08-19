@@ -51,5 +51,9 @@ class GameEngine(ABC):
         pass
 
     @abstractmethod
+    def early_termination(self):
+        pass
+
+    @abstractmethod
     def end_game(self):
         pass

@@ -8,3 +8,7 @@ class Player(ABC):
     @abstractmethod
     def end_game(self, board, winner):
         pass
+
+    @abstractmethod
+    def early_termination(self):
+        pass

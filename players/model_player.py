@@ -2,6 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 import copy
+from pathlib import Path
+from datetime import datetime
 import constants
 from players.player import Player
 from replay_buffer import ReplayBuffer
@@ -10,23 +12,27 @@ from ml.dqn import DeepQNetwork
 class ModelPlayer(Player):
     def __init__(self, name, options=None):
         self.name = name
-        self.prev_observation = None
-        self.prev_action = None
-        self.epsilon = constants.EPSILON
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=constants.ALPHA)
-        self.replay_buffer = ReplayBuffer(constants.MEMORY_SIZE, constants.MINIBATCH_SIZE)
-        self.q_net = DeepQNetwork()
-        self.q_target_net = DeepQNetwork()
+        self.is_training = False
+        self.save_model = False
         self._configure(options)
 
     def get_action(self, board, moves):
         q_values = np.expand_dims(board, axis=0)
         action = self._policy(q_values, moves)
-        self._update_replay_buffer(q_values, action)
+
+        if self.is_training:
+            self._update_replay_buffer(q_values, action)
         
         return action
     
+    def early_termination(self):
+        if not self.save_model: return
+        filename = self._make_filename()
+        self.q_net.save(filename)
+    
     def end_game(self, board, winner):
+        if not self.is_training: return
+
         if winner == "draw": reward = 0
         elif winner == self.name: reward = 1
         else: reward = -1
@@ -47,11 +53,23 @@ class ModelPlayer(Player):
     def _configure(self, options):
         if options is None:
             return
-        
-        # check if file name passed
-        # check if save progress
-        # check win threshold?
-        pass
+        if options.is_training:
+            self.is_training = True
+            self.prev_observation = None
+            self.prev_action = None
+            self.epsilon = constants.EPSILON
+            self.optimizer = tf.keras.optimizers.Adam(learning_rate=constants.ALPHA)
+            self.replay_buffer = ReplayBuffer(constants.MEMORY_SIZE, constants.MINIBATCH_SIZE)
+            self.q_target_net = DeepQNetwork()
+        if options.save_model:
+            self.save_model = True
+        if options.model_path is not None:
+            self.q_net = tf.keras.models.load_model(options.model_path)
+        else:
+            self.q_net = DeepQNetwork()
+        if options.model_path is not None and options.is_training:
+            self.q_target_net.set_weights(self.q_net.get_weights())
+        return
 
     def _policy(self, q_values, moves):
         # epsilon greedy policy
@@ -122,3 +140,9 @@ class ModelPlayer(Player):
         board[0][row][col][player] = 1
 
         return board
+    
+    def _make_filename(self):
+        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_name = self.name + "_" + current_datetime + ".keras"
+        abs_path = Path(__file__).parent.parent / "ml" / "saved_models" / file_name
+        return abs_path

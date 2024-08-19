@@ -9,5 +9,8 @@ class RandomPlayer(Player):
         columns = [i for i, v in enumerate(moves) if v == 1]
         return random.choice(columns)
     
+    def early_termination(self):
+        return
+    
     def end_game(self, board, winner):
         return
