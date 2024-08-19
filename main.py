@@ -4,12 +4,12 @@ from pz_game_engine import PZGameEngine
 from game_controller import GameController
 
 # Configure environment
-env = connect_four_v3.env(render_mode="human")  #  ansi or human
+env = connect_four_v3.env(render_mode="ansi")  #  ansi or human
 env.reset(seed=constants.SEED)
 
 # Configure game
 engine = PZGameEngine(env)
 controller = GameController(engine)
 controller.set_players("model", "random")
-controller.set_game_limit(10)
+controller.set_game_limit(100000)
 controller.start_game_loop()

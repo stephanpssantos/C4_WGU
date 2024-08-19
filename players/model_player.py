@@ -16,6 +16,7 @@ class ModelPlayer(Player):
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=constants.ALPHA)
         self.replay_buffer = ReplayBuffer(constants.MEMORY_SIZE, constants.MINIBATCH_SIZE)
         self.q_net = DeepQNetwork()
+        self.q_target_net = DeepQNetwork()
         self._configure(options)
 
     def get_action(self, board, moves):
@@ -35,12 +36,12 @@ class ModelPlayer(Player):
             self.prev_action,
             0,
             board,
-            True)
-        
+            1)
         self.replay_buffer.commit(reward)
         self.prev_action = None
         self.prev_observation = None
-        
+        self.epsilon = max(constants.E_MIN, constants.E_DECAY * self.epsilon)
+        self._train()
         return
 
     def _configure(self, options):
@@ -55,10 +56,8 @@ class ModelPlayer(Player):
     def _policy(self, q_values, moves):
         # epsilon greedy policy
         if random.random() > self.epsilon:
-            self.epsilon = max(constants.E_MIN, constants.E_DECAY * self.epsilon)
             return self._exploit(q_values, moves)
         else:
-            self.epsilon = constants.EPSILON
             return self._explore(moves)
 
     def _exploit(self, q_values, moves):
@@ -93,12 +92,23 @@ class ModelPlayer(Player):
                 self.prev_action,
                 0,
                 update_obs,
-                False)
+                0)
             
         self.prev_action = action
         self.prev_observation = update_obs
-        
         return
+    
+    def _train(self):
+        if not self.replay_buffer.check_update_conditions(): return
+
+        experiences = self.replay_buffer.get_experiences()
+        rewards, next_states = experiences[2:4]
+
+        # doesn't work so well
+        # agent_learn(experiences, self.q_net, self.q_target_net, self.optimizer)
+
+        y_targets = rewards
+        self.q_net.train_on_batch(next_states, y_targets)    
     
     def _place_piece(self, board, col):
         player = 0 if self.name == "player_0" else 1

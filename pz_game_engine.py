@@ -6,6 +6,7 @@ class PZGameEngine(GameEngine):
         super().__init__()
         self.env = env
         self.post_game_done = False
+        self.winner = None
 
     def start_game(self):
         for agent in self.env.agent_iter():
@@ -20,11 +21,12 @@ class PZGameEngine(GameEngine):
 
             self.env.step(action)
         
-        return 0 # should be game outcome for tracking
+        return self.winner
 
     def reset(self):
         self.next_player = 0
         self.post_game_done = False
+        self.winner = None
         self.env.reset(constants.SEED)
 
     def get_moves(self):
@@ -43,11 +45,11 @@ class PZGameEngine(GameEngine):
     def _post_game(self, player):
         if self.post_game_done: return
         winner = self._check_winner()
-        print(winner)
         player.end_game(self.get_board(), winner)
         next_player = self.player1 if self.next_player else self.player0
         next_player.end_game(self.get_board(), winner)
         self.post_game_done = True
+        self.winner = winner
         
         return
 
