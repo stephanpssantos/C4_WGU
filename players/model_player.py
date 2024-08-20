@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import datetime
 import constants
 from players.player import Player
+from players.model_player_options import ModelPlayerOptions
 from replay_buffer import ReplayBuffer
 from ml.dqn import DeepQNetwork
 
@@ -49,6 +50,13 @@ class ModelPlayer(Player):
         self.epsilon = max(constants.E_MIN, constants.E_DECAY * self.epsilon)
         self._train()
         return
+    
+    def clone(self):
+        options = ModelPlayerOptions()
+        options.set_is_training = False
+        options.set_save_model = False
+        options.set_base_q_net = self.q_net
+        return ModelPlayer(self.name, options)
 
     def _configure(self, options):
         if options is None:
@@ -63,7 +71,9 @@ class ModelPlayer(Player):
             self.q_target_net = DeepQNetwork()
         if options.save_model:
             self.save_model = True
-        if options.model_path is not None:
+        if options.base_q_net is not None:
+            self.q_net = options.base_q_net
+        elif options.model_path is not None:
             self.q_net = tf.keras.models.load_model(options.model_path)
         else:
             self.q_net = DeepQNetwork()

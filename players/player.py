@@ -12,3 +12,7 @@ class Player(ABC):
     @abstractmethod
     def early_termination(self):
         pass
+
+    @abstractmethod
+    def clone(self):
+        pass

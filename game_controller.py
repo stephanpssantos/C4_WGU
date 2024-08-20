@@ -11,10 +11,7 @@ class GameController:
         self.win_threshold = 0
         self.terminate_on_threshold = False
         self.save_game_history = False
-        self.player0_games = []
-        self.player1_games = []
-        self.player0_winrate = 0
-        self.player1_winrate = 0
+        self.track_scores = True
 
     def set_player_0(self, player0, player0_options=None):
         self.game_engine.player0 = PlayerFactory(0, player0, player0_options)
@@ -31,6 +28,9 @@ class GameController:
 
     def set_save_history(self, value):
         self.save_game_history = value
+
+    def set_track_scores(self, value):
+        self.track_scores = value
     
     def start_game_loop(self):
         self._startup_check()
@@ -46,9 +46,7 @@ class GameController:
         self.game_engine.end_game()
 
     def _start_new_game(self):
-        if self.game_number >= self.game_limit: 
-            return
-        
+        if self.game_number >= self.game_limit: return
         self.game_number += 1
         self.game_engine.reset()
         winner = self.game_engine.start_game()
@@ -65,6 +63,12 @@ class GameController:
             self.game_engine.player1 = PlayerFactory(1, "random")
 
     def _update_scores(self, winner):
+        if not self.track_scores: return
+        if self.player0_games is None: self.player0_games = []
+        if self.player1_games is None: self.player1_games = []
+        if self.player0_winrate is None: self.player0_winrate = 0
+        if self.player1_winrate is None: self.player1_winrate = 0
+
         if winner == "draw":
             self.player0_games.append(0)
             self.player1_games.append(0)
@@ -88,6 +92,7 @@ class GameController:
             return True
     
     def _console_print_results(self):
+        if not self.track_scores: return
         games_counted = constants.GAME_COUNT_AVERAGE
         player0_wins = self.player0_games[-games_counted:].count(1)
         player1_wins = self.player1_games[-games_counted:].count(1)

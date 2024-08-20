@@ -14,3 +14,6 @@ class RandomPlayer(Player):
     
     def end_game(self, board, winner):
         return
+    
+    def clone(self):
+        return RandomPlayer(self.name)
