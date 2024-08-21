@@ -11,7 +11,11 @@ class GameController:
         self.win_threshold = 0
         self.terminate_on_threshold = False
         self.save_game_history = False
-        self.track_scores = True
+        self.track_scores = False
+        self.player0_games = []
+        self.player1_games = []
+        self.player0_winrate = 0
+        self.player1_winrate = 0
 
     def set_player_0(self, player0, player0_options=None):
         self.game_engine.player0 = PlayerFactory(0, player0, player0_options)
@@ -31,6 +35,10 @@ class GameController:
 
     def set_track_scores(self, value):
         self.track_scores = value
+        if not value: 
+            print("Warning: score tracking disabled. Game history and win threshold also disabled.")
+            self.save_game_history = False
+            self.terminate_on_threshold = False
     
     def start_game_loop(self):
         self._startup_check()
@@ -64,10 +72,6 @@ class GameController:
 
     def _update_scores(self, winner):
         if not self.track_scores: return
-        if self.player0_games is None: self.player0_games = []
-        if self.player1_games is None: self.player1_games = []
-        if self.player0_winrate is None: self.player0_winrate = 0
-        if self.player1_winrate is None: self.player1_winrate = 0
 
         if winner == "draw":
             self.player0_games.append(0)
