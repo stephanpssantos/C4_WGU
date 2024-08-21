@@ -1,0 +1,4 @@
+player0,player1,winner,win_threshold,games_played,start_time,end_time,saved_model_name,player0_history,player1_history
+model_player_0_training,mcts_player_1_25,,,,player_0_20240820_192429.keras,player0_20240820_192429.txt,player1_20240820_192429.txt
+model_player_0_training,mcts_player_1_50,,,,player_0_20240820_201251.keras,player0_20240820_201251.txt,player1_20240820_201251.txt
+model_player_0_training,mcts_player_1_100,61409,,,player_0_20240821_022149.keras,player0_20240821_022149.txt,player1_20240821_022149.txt

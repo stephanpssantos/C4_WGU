@@ -15,6 +15,7 @@ class ModelPlayer(Player):
         self.name = name
         self.is_training = False
         self.save_model = False
+        self.starting_model_path = None
         self._configure(options)
 
     def get_action(self, board, moves):
@@ -30,6 +31,7 @@ class ModelPlayer(Player):
         if not self.save_model: return
         filename = self._make_filename()
         self.q_net.save(filename)
+        return filename.name
     
     def end_game(self, board, winner):
         if not self.is_training: return
@@ -57,6 +59,11 @@ class ModelPlayer(Player):
         options.set_save_model = False
         options.set_base_q_net = self.q_net
         return ModelPlayer(self.name, options)
+    
+    def describe(self):
+        is_training = "training" if self.is_training else "not-training"
+        starting_model = "" if self.starting_model_path is None else "_" + str(self.starting_model_path.name)
+        return "model_" + self.name + "_" + is_training + starting_model
 
     def _configure(self, options):
         if options is None:
@@ -74,6 +81,7 @@ class ModelPlayer(Player):
         if options.base_q_net is not None:
             self.q_net = options.base_q_net
         elif options.model_path is not None:
+            self.starting_model_path = options.model_path
             self.q_net = tf.keras.models.load_model(options.model_path)
         else:
             self.q_net = DeepQNetwork()

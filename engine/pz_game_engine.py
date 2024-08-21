@@ -40,8 +40,9 @@ class PZGameEngine(GameEngine):
         return True if termination or truncation else False
     
     def early_termination(self):
-        self.player0.early_termination()
-        self.player1.early_termination()
+        p0 = self.player0.early_termination()
+        p1 = self.player1.early_termination()
+        self.termination_info = [p0, p1]
     
     def end_game(self):
         self.env.close()

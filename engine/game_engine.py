@@ -5,6 +5,7 @@ class GameEngine(ABC):
         self._player0 = None
         self._player1 = None
         self._next_player = 0
+        self._termination_info = None
 
     @property
     def player0(self):
@@ -29,6 +30,14 @@ class GameEngine(ABC):
     @next_player.setter
     def next_player(self, value):
         self._next_player = value
+
+    @property
+    def termination_info(self):
+        return self._termination_info
+    
+    @termination_info.setter
+    def termination_info(self, value):
+        self._termination_info = value
 
     @abstractmethod
     def start_game(self):

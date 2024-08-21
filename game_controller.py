@@ -16,6 +16,10 @@ class GameController:
         self.player1_games = []
         self.player0_winrate = 0
         self.player1_winrate = 0
+        self.history0_filename = None
+        self.history1_filename = None
+        self.start_time = None
+        self.end_time = None
 
     def set_player_0(self, player0, player0_options=None):
         self.game_engine.player0 = PlayerFactory(0, player0, player0_options)
@@ -41,6 +45,7 @@ class GameController:
             self.terminate_on_threshold = False
     
     def start_game_loop(self):
+        self.start_time = datetime.now()
         self._startup_check()
         
         while (self.game_number < self.game_limit):
@@ -52,6 +57,7 @@ class GameController:
 
         self._save_game_history()
         self.game_engine.end_game()
+        self.end_time = datetime.now()
 
     def _start_new_game(self):
         if self.game_number >= self.game_limit: return
@@ -109,6 +115,8 @@ class GameController:
         fn1 = self._make_filename("player1")
         np.savetxt(fn0, self.player0_games, fmt="%d")
         np.savetxt(fn1, self.player1_games, fmt="%d")
+        self.history0_filename = str(fn0.name)
+        self.history1_filename = str(fn1.name)
 
     def _make_filename(self, player):
         current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")

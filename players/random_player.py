@@ -10,10 +10,13 @@ class RandomPlayer(Player):
         return random.choice(columns)
     
     def early_termination(self):
-        return
+        return ""
     
     def end_game(self, board, winner):
         return
     
     def clone(self):
         return RandomPlayer(self.name)
+    
+    def describe(self):
+        return "random_" + self.name

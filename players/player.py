@@ -16,3 +16,7 @@ class Player(ABC):
     @abstractmethod
     def clone(self):
         pass
+
+    @abstractmethod
+    def describe(self):
+        pass

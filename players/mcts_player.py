@@ -47,14 +47,17 @@ class MCTSPlayer(Player):
         return max(root.children, key=lambda c: c.visits).action
     
     def early_termination(self):
-        return
+        return ""
     
     def end_game(self, board, winner):
         return
     
     def clone(self):
         # unless you're implementing MCTS v different player types
-        raise Exception("Don't clone MCTS player") 
+        raise Exception("Don't clone MCTS player")
+    
+    def describe(self):
+        return "mcts_" + self.name + "_" + self.num_simulations
 
     def _create_sim(self, board):
         board_copy = copy.deepcopy(board)
