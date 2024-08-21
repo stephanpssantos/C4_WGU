@@ -1,5 +1,5 @@
 import constants
-from game_engine import GameEngine
+from engine.game_engine import GameEngine
 
 class PZGameEngine(GameEngine):
     def __init__(self, env):

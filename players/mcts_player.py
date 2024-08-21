@@ -3,7 +3,7 @@ import random
 import copy
 from players.mcts_node import Node
 from players.player import Player
-from sim_game_engine import SimGameEngine
+from engine.sim_game_engine import SimGameEngine
 from players.random_player import RandomPlayer
 
 

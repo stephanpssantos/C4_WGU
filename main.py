@@ -1,13 +1,13 @@
 from pettingzoo.classic import connect_four_v3
 import constants
-from pz_game_engine import PZGameEngine
+from engine.pz_game_engine import PZGameEngine
 from game_controller import GameController
 from players.model_player_options import ModelPlayerOptions
 from players.mcts_player_options import MCTSPlayerOptions
 # from graph import load_and_graph
 
 # Configure environment
-env = connect_four_v3.env(render_mode="human")  #  ansi or human
+env = connect_four_v3.env(render_mode="ansi")  #  ansi or human
 env.reset(seed=constants.SEED)
 
 # Configure player options

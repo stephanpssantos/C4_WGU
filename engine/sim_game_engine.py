@@ -1,5 +1,5 @@
 import copy
-from game_engine import GameEngine
+from engine.game_engine import GameEngine
 
 class SimGameEngine(GameEngine):
     def __init__(self, board, next_player):
