@@ -3,14 +3,18 @@ import random
 import copy
 from players.mcts_node import Node
 from players.player import Player
-from engine.sim_game_engine import SimGameEngine
 from players.random_player import RandomPlayer
-
+from players.better_random_player import BetterRandomPlayer
+from players.model_player import ModelPlayer
+from players.model_player_options import ModelPlayerOptions
+from players.mcts_player_options import MCTSPlayerOptions
+from engine.sim_game_engine import SimGameEngine
 
 class MCTSPlayer(Player):
     def __init__(self, name, options):
         self.name = name
         self.num_simulations = options.num_simulations
+        self.clone_level = options.clone_level
         self.exploration_coeff = options.exploration_coeff
         self.player_num = 0 if name == "player_0" else 1
         # Implement the below if you want to have MCTS play against different player types
@@ -44,7 +48,9 @@ class MCTSPlayer(Player):
             # Update the current move with the outcome
             self._backpropagate(node, reward)
 
-        return max(root.children, key=lambda c: c.visits).action
+        return max(root.children, key=lambda c: c.value).action
+        # return max(root.children, key=lambda c: c.visits).action
+        # return self._select(root).action
     
     def early_termination(self):
         return ""
@@ -55,17 +61,40 @@ class MCTSPlayer(Player):
     def clone(self):
         # unless you're implementing MCTS v different player types
         raise Exception("Don't clone MCTS player")
+        # player_options = MCTSPlayerOptions(1)
+        # if self.clone_level < 2:
+        #     clone_level = self.clone_level + 1
+        #     num_simulations = self.num_simulations // 2
+        #     if num_simulations == 0: num_simulations = 1
+        #     player_options = MCTSPlayerOptions(num_simulations, clone_level)
+        #     return MCTSPlayer(self.name, player_options)
+        # else:
+        #     return RandomPlayer(self.name)
+        # return RandomPlayer(self.name)
     
     def describe(self):
-        return "mcts_" + self.name + "_" + self.num_simulations
+        return "mcts_" + self.name + "_" + str(self.num_simulations)
 
     def _create_sim(self, board):
         board_copy = copy.deepcopy(board)
         engine = SimGameEngine(board_copy, self.player_num)
         engine.player0 = RandomPlayer("player_0")
         engine.player1 = RandomPlayer("player_1")
+
         # if planning on implementing MCTS against itself or against a model,
         # here you could make it check which player it is then make it clone itself
+        # below is a test, but it's too expensive
+        # player_options = ModelPlayerOptions()
+        # player_options.set_model_path("player_0_20240823_100953.keras")
+        # player_options.set_is_training(False)
+        # player_options.set_save_model(False)
+        # engine.player0 = ModelPlayer("player_0", player_options)
+        # engine.player1 = ModelPlayer("player_1", player_options)
+
+        # player_options = MCTSPlayerOptions(20, 1)
+        # engine.player0 = MCTSPlayer("player_0", player_options)
+        # engine.player1 = MCTSPlayer("player_1", player_options)
+        
         return engine
 
     def _select(self, node):

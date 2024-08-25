@@ -7,19 +7,22 @@ from players.player_factory import PlayerFactory
 class GameController:
     def __init__(self, game_engine):
         self.game_engine = game_engine
-        self.game_number = 0
         self.win_threshold = 0
         self.terminate_on_threshold = False
         self.save_game_history = False
         self.track_scores = False
-        self.player0_games = []
-        self.player1_games = []
+        self.reset()
+
+    def reset(self):
+        self.game_number = 0
         self.player0_winrate = 0
         self.player1_winrate = 0
-        self.history0_filename = None
-        self.history1_filename = None
+        self.player0_games = []
+        self.player1_games = []
         self.start_time = None
         self.end_time = None
+        self.history0_filename = None
+        self.history1_filename = None
 
     def set_player_0(self, player0, player0_options=None):
         self.game_engine.player0 = PlayerFactory(0, player0, player0_options)
@@ -56,7 +59,9 @@ class GameController:
                 break
 
         self._save_game_history()
-        self.game_engine.end_game()
+        # TODO: rename this to just self.game_engine.termination()
+        self.game_engine.early_termination()
+        # self.game_engine.end_game()
         self.end_time = datetime.now()
 
     def _start_new_game(self):

@@ -12,7 +12,7 @@ class SimGameEngine(GameEngine):
         while self.winner is None:
             player = self.player1 if self.next_player else self.player0
             player_num = self.next_player
-            self.next_player = not self.next_player
+            self.next_player = int(not self.next_player)
             action = player.get_action(self.get_board(), self.get_moves())
             row = self._place_piece(player_num, action)
             game_won = self._check_winner(row, action, player_num)
@@ -49,13 +49,14 @@ class SimGameEngine(GameEngine):
     def play_one_move(self, action):
         if self.winner is not None: raise Exception("play_one_move called when game already over")
         player_num = self.next_player
-        self.next_player = not self.next_player
+        self._invert_board()
+        self.next_player = int(not self.next_player)
         row = self._place_piece(player_num, action)
         game_won = self._check_winner(row, action, player_num)
         if game_won: self.winner = self.player1 if player_num else self.player0
         game_draw = self._check_draw()
-        if game_draw: self.winner = "draw"
-        return
+        if game_draw: self.winner = "draw"  
+        return self.winner
     
     def clone(self):
         board_copy = copy.deepcopy(self.board)
@@ -105,3 +106,8 @@ class SimGameEngine(GameEngine):
 
         most = max(nw_se, w_e, sw_ne, n_s)
         return most >= 4
+    
+    def _invert_board(self):
+        if self.next_player == 0: return
+        board_copy = copy.deepcopy(self.board)
+        self.board = board_copy[:,:,::-1]

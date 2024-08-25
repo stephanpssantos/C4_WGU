@@ -1,6 +1,7 @@
+from players.better_random_player import BetterRandomPlayer
+from players.mcts_player import MCTSPlayer
 from players.model_player import ModelPlayer
 from players.random_player import RandomPlayer
-from players.mcts_player import MCTSPlayer
 
 def PlayerFactory(player_number, player_type, type_options = None):
     name = "player_0" if player_number == 0 else "player_1"
@@ -10,6 +11,8 @@ def PlayerFactory(player_number, player_type, type_options = None):
         player = ModelPlayer(name, type_options)
     elif player_type == "mcts":
         player = MCTSPlayer(name, type_options)
+    elif player_type == "better_random":
+        player = BetterRandomPlayer(name)
     else:
         player = RandomPlayer(name)
 

@@ -7,7 +7,7 @@ from datetime import datetime
 import constants
 from players.player import Player
 from players.model_player_options import ModelPlayerOptions
-from replay_buffer import ReplayBuffer
+from ml.replay_buffer import ReplayBuffer
 from ml.dqn import DeepQNetwork
 
 class ModelPlayer(Player):
@@ -28,7 +28,7 @@ class ModelPlayer(Player):
         return action
     
     def early_termination(self):
-        if not self.save_model: return
+        if not self.save_model: return ""
         filename = self._make_filename()
         self.q_net.save(filename)
         return filename.name
@@ -40,25 +40,27 @@ class ModelPlayer(Player):
         elif winner == self.name: reward = 1
         else: reward = -1
 
-        self.replay_buffer.append(
-            self.prev_observation, 
-            self.prev_action,
-            0,
-            board,
-            1)
-        self.replay_buffer.commit(reward)
-        self.prev_action = None
-        self.prev_observation = None
-        self.epsilon = max(constants.E_MIN, constants.E_DECAY * self.epsilon)
-        self._train()
+        if (self.is_training):
+            self.replay_buffer.append(
+                self.prev_observation, 
+                self.prev_action,
+                0,
+                board,
+                1)
+            self.replay_buffer.commit(reward)
+            self.prev_action = None
+            self.prev_observation = None
+            self.epsilon = max(constants.E_MIN, constants.E_DECAY * self.epsilon)
+            self._train()
         return
     
     def clone(self):
-        options = ModelPlayerOptions()
-        options.set_is_training = False
-        options.set_save_model = False
-        options.set_base_q_net = self.q_net
-        return ModelPlayer(self.name, options)
+        # options = ModelPlayerOptions()
+        # options.set_is_training = False
+        # options.set_save_model = False
+        # options.set_base_q_net = self.q_net
+        # return ModelPlayer(self.name, options)
+        return self
     
     def describe(self):
         is_training = "training" if self.is_training else "not-training"
@@ -91,7 +93,7 @@ class ModelPlayer(Player):
 
     def _policy(self, q_values, moves):
         # epsilon greedy policy
-        if random.random() > self.epsilon:
+        if not self.is_training or random.random() > self.epsilon:
             return self._exploit(q_values, moves)
         else:
             return self._explore(moves)
@@ -155,7 +157,7 @@ class ModelPlayer(Player):
             if board[0][i][col][0] == 0 and board[0][i][col][1] == 0:
                 row = i
 
-        board[0][row][col][player] = 1
+        board[0][row][col][0] = 1
 
         return board
     
